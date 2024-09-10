@@ -20,9 +20,13 @@ jobs:
       # AWS secrets
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
+    
+    defaults:
+        run:
+          working-directory: source
 
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -36,7 +40,7 @@ jobs:
         tf_actions_comment: true
         
     - name: List files in source directory for debugging
-      run: ls -la ./source
+      run: ls -la source
 
     - name: Terraform plan
       uses: hashicorp/terraform-github-actions@master
@@ -53,6 +57,10 @@ jobs:
       # AWS secrets
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
+
+    defaults:
+            run:
+              working-directory: source
 
     runs-on: ubuntu-latest
 
