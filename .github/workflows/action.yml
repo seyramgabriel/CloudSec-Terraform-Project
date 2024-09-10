@@ -49,21 +49,21 @@ jobs:
       id: plan
       run: terraform plan -no-color
 
-  dev:
-    name: 'Deploy to dev'
-    needs: terraform
-    env:
-      # AWS secrets
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
+  # dev:
+  #   name: 'Deploy to dev'
+  #   needs: terraform
+  #   env:
+  #     # AWS secrets
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
 
-    defaults:
-            run:
-              working-directory: source
+  #   defaults:
+  #           run:
+  #             working-directory: source
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    steps:
+  #   steps:
     - name: Terraform apply to dev
       if: github.event.inputs.terraform_action == 'apply'
       run: terraform apply -auto-approve
