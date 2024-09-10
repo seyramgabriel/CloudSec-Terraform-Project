@@ -36,6 +36,7 @@ jobs:
         tf_actions_comment: true
 
     - name: Terraform plan
+      run : pwd
       uses: hashicorp/terraform-github-actions@master
       with:
         tf_actions_version: 0.14.3
