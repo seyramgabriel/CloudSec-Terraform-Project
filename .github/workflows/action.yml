@@ -32,7 +32,7 @@ jobs:
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'init'
-        tf_actions_working_dir: 'source'
+        tf_actions_working_dir: '.'
         tf_actions_comment: true
 
     - name: Terraform plan
@@ -40,7 +40,7 @@ jobs:
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'plan'
-        tf_actions_working_dir: 'source'
+        tf_actions_working_dir: '.'
         tf_actions_comment: true
 
   dev:
@@ -60,7 +60,7 @@ jobs:
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'apply'
-        tf_actions_working_dir: 'source'
+        tf_actions_working_dir: '.'
         tf_actions_comment: true
         args: '-auto-approve'
 
@@ -70,6 +70,6 @@ jobs:
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'destroy'
-        tf_actions_working_dir: 'source'
+        tf_actions_working_dir: '.'
         tf_actions_comment: true
         args: '-auto-approve'
