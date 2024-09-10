@@ -39,8 +39,8 @@ jobs:
         tf_actions_working_dir: '.'
         tf_actions_comment: true
         
-    - name: List files in source directory for debugging
-      run: ls -la ./source
+    # - name: List files in source directory for debugging
+    #   run: ls -la ./source
 
     - name: Terraform plan
       uses: hashicorp/terraform-github-actions@master
