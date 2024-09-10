@@ -1,3 +1,18 @@
+name: Deploy Infra
+
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        type: choice
+        description: select terraform action
+        options:
+        - apply
+        - destroy
+        required: true
+  # push:
+  #   branches: [ "main" ]
+
 jobs:
   terraform:
     name: 'Terraform'
