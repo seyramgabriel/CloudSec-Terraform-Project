@@ -10,6 +10,8 @@ on:
         - apply
         - destroy
         required: true
+  # push:
+  #   branches: [ "main" ]
 
 jobs:
   terraform:
@@ -17,7 +19,7 @@ jobs:
     env:
       # AWS secrets
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
 
     runs-on: ubuntu-latest
 
@@ -25,23 +27,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: List files in source directory for debugging
-      run: ls -la ./source
-
     - name: Terraform Init
       uses: hashicorp/terraform-github-actions@master
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'init'
-        tf_actions_working_dir: './source'
+        tf_actions_working_dir: '/source'
         tf_actions_comment: true
 
-    - name: Terraform Plan
+    - name: Terraform plan
       uses: hashicorp/terraform-github-actions@master
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'plan'
-        tf_actions_working_dir: './source'
+        tf_actions_working_dir: '/source'
         tf_actions_comment: true
 
   dev:
@@ -50,7 +49,7 @@ jobs:
     env:
       # AWS secrets
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY }}
 
     runs-on: ubuntu-latest
 
@@ -61,7 +60,7 @@ jobs:
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'apply'
-        tf_actions_working_dir: './source'
+        tf_actions_working_dir: '/source'
         tf_actions_comment: true
         args: '-auto-approve'
 
@@ -71,6 +70,6 @@ jobs:
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: 'destroy'
-        tf_actions_working_dir: './source'
+        tf_actions_working_dir: '/source'
         tf_actions_comment: true
         args: '-auto-approve'
