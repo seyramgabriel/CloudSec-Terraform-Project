@@ -250,10 +250,66 @@ resource "aws_cloudwatch_log_group" "cloudsec_ecs_logs" {
 }
 
 
+
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "ecs_task_execution_role1"
+ 
+  assume_role_policy = <<EOF
+{
+ "Version": "2012-10-17",
+ "Statement": [
+   {
+     "Action": "sts:AssumeRole",
+     "Principal": {
+       "Service": "ecs-tasks.amazonaws.com"
+     },
+     "Effect": "Allow",
+     "Sid": ""
+   }
+ ]
+}
+EOF
+}
+
+
+
+resource "aws_iam_role" "ecs_task_role" {
+  name = "ecs_task_role1"
+ 
+  assume_role_policy = <<EOF
+{
+ "Version": "2012-10-17",
+ "Statement": [
+   {
+     "Action": "sts:AssumeRole",
+     "Principal": {
+       "Service": "ecs-tasks.amazonaws.com"
+     },
+     "Effect": "Allow",
+     "Sid": ""
+   }
+ ]
+}
+EOF
+}
+ 
+resource "aws_iam_role_policy_attachment" "ecs-task-role-policy-attachment" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess"
+}
+
+
+resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+
+}
+
+
 resource "aws_ecs_task_definition" "cloudsec_task_definition" {
   family                   = "cloudsec_family"
-  task_role_arn            = var.ecs_task_role
-  execution_role_arn       = var.ecs_task_execution_role
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   network_mode             = "awsvpc"
   cpu                      = "1024"
   memory                   = "3072"

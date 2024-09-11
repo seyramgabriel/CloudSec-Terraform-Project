@@ -65,14 +65,14 @@ variable "iam_database_authentication_enabled" {
   default = false
 }
 
-variable "ecs_task_role" { 
+/*variable "ecs_task_role" { 
   default = "arn:aws:iam::431877974142:role/ECS_Task_Definition"
 }
 
 
 variable "ecs_task_execution_role" {
   default = "arn:aws:iam::431877974142:role/ecsTaskExecutionRole"
-}
+}*/
 
 variable "target_group_name" {
     type    = string
