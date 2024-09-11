@@ -7,7 +7,7 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 ## Prerequisites:
 
 * An AWS Account
-* AWS Access and Secret keys                   #   ___In the absence of a github actions role___
+* AWS Access and Secret keys                   #___In the absence of a github actions role___
 * SSM parameter for database username and password
 * S3 bucket for terraform backend state files. The bucket name must be unique, so you cannot use what is in this repository
 * Domain name 
