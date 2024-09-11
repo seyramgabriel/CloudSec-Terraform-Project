@@ -58,6 +58,7 @@ jobs:
     - name: Terraform destroy
       if: ${{ github.event.inputs.terraform_action == 'destroy' }}
       uses: hashicorp/terraform-github-actions@master
+      continue-on-error: true
       with:
         tf_actions_version: 0.14.3
         tf_actions_subcommand: ${{ github.event.inputs.terraform_action }}
