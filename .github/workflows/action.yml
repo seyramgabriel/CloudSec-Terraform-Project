@@ -67,7 +67,7 @@ jobs:
         args: '-auto-approve'
 
     - name: Terraform destroy
-      if: github.event.inputs.terraform_action == 'destroy' && success()
+      if: github.event.inputs.terraform_action == 'destroy' && failure()
       uses: hashicorp/terraform-github-actions@master
       with:
         tf_actions_version: 0.14.3
