@@ -66,14 +66,14 @@ jobs:
         tf_actions_comment: true
         args: '-auto-approve'
 
-    - name: Terraform destroy re-run
-      if: github.event.inputs.terraform_action == 'destroy' && success()
-      uses: hashicorp/terraform-github-actions@master
-      with:
-        tf_actions_version: 0.14.3
-        tf_actions_subcommand: ${{ github.event.inputs.terraform_action }}
-        tf_actions_working_dir: './source'
-        tf_actions_comment: true
-        args: '-auto-approve'
+    # - name: Terraform destroy re-run
+    #   if: github.event.inputs.terraform_action == 'destroy' && success()
+    #   uses: hashicorp/terraform-github-actions@master
+    #   with:
+    #     tf_actions_version: 0.14.3
+    #     tf_actions_subcommand: ${{ github.event.inputs.terraform_action }}
+    #     tf_actions_working_dir: './source'
+    #     tf_actions_comment: true
+    #     args: '-auto-approve'
 
         
