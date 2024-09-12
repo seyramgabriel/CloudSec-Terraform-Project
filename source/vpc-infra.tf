@@ -62,10 +62,11 @@ resource "aws_security_group" "rds_security_group" {
   vpc_id      = aws_vpc.cloudsec.id
 
   ingress {
-    from_port   = var.web_ports[0]
-    protocol    = "TCP"
-    to_port     = var.web_ports[0]
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = var.web_ports[0]
+    protocol        = "TCP"
+    to_port         = var.web_ports[0]
+    security_groups = [aws_security_group.ecs_security_group.id]
+    description     = "Allow traffic from the ecs"
   }
 }
 
@@ -111,7 +112,7 @@ resource "aws_security_group" "ecs_security_group" {
     from_port   = var.web_ports[0]
     protocol    = "TCP"
     to_port     = var.web_ports[0]
-    security_groups = [aws_security_group.rds_security_group.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
     egress {

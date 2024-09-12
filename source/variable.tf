@@ -38,8 +38,8 @@ variable "internet_gateway_name" {
 
 
 variable "web_ports" {
-  default = [ 3306, 2049, 80, 443 ]
-  type    = list
+  default = [3306, 2049, 80, 443]
+  type    = list(any)
 }
 
 variable "public_access" {
@@ -48,14 +48,14 @@ variable "public_access" {
 }
 
 variable "rds_identifier" {
-  type = string
+  type    = string
   default = "cloudsec"
-  }
+}
 
 variable "rds_db_name" {
-    type    = string
-    default = "cloudsec_db"
-  }
+  type    = string
+  default = "cloudsec_db"
+}
 
 variable "instance_class" {
   default = "db.t3.micro"
@@ -75,14 +75,14 @@ variable "ecs_task_execution_role" {
 }*/
 
 variable "target_group_name" {
-    type    = string
-    default = "cloudsec-alb-group"
-  }
+  type    = string
+  default = "cloudsec-alb-group"
+}
 
 variable "elb_name" {
-    type    = string
-    default = "cloudsec-alb"
-  }
+  type    = string
+  default = "cloudsec-alb"
+}
 
 
 variable "elb_type" {
@@ -91,12 +91,12 @@ variable "elb_type" {
 }
 
 variable "certificate_arn" {
-  type  = string
+  type    = string
   default = "arn:aws:acm:us-east-2:431877974142:certificate/554b507e-65b1-4194-bc68-05293aa55694"
 }
 
 variable "aws_efs_access_point" {
-  type = string
+  type    = string
   default = "cloudsec_efs_access_point"
 }
 

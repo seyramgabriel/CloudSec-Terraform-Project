@@ -14,7 +14,9 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 * ACMS certificate for the Domain name 
 
 
-## The terraform configuration creates: 
+## Network Configuration
+
+The terraform configuration creates: 
 
 * one (1) virtual private cloud
 * Two (2) subnets
@@ -22,7 +24,7 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 * One (1) internet gateway which serves as the route for the route table
 * Four (4) security groups, one for RDS, one for ECS, one for EFS, and one for the Load Balancer:
      
-    1. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306.
+    1. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
 
     2. The ECS security group has ingress for Load Balancer security group on both HTTPS and HTTPS, egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
 
@@ -47,6 +49,12 @@ _Note that the wordpress container needs a database. The details of the RDS data
 * One (1) ECS Rask Definition that will be run by an ecs service.
 * One (1) ECS Service, which specifies the vpc, subnets, security group for ECS, Load Balancer and Target Group to run the container specified in the Task Definition. The Target Group is of type "ip", hence the ECS Service dynamically registers the private ip of the container on the Target Group anytime you run the terraform configuration. 
  
+
+RDS doesn't assign a public IP address to the cluster. Only Amazon EC2 instances and other resources inside the VPC can connect to your cluster. 
+
+
+
+
 
 ## How to run the configuration files
 
