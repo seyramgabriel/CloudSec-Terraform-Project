@@ -18,10 +18,10 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 
 The terraform configuration creates: 
 
-* one (1) virtual private cloud
-* Two (2) subnets
-* One (1) route table which is associated with the two subnets
-* One (1) internet gateway which serves as the route for the route table
+* one (1) virtual private cloud.
+* Four(4) subnets.
+* Two (2) route tables, one is associated with the two subnets to be used as public subnets, and the other is associated with private subnets (used as subnet group) within which the RDS database is launched.
+* One (1) internet gateway which serves as the route for the public route table.
 * Four (4) security groups, one for RDS, one for ECS, one for EFS, and one for the Load Balancer:
      
     1. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
@@ -36,25 +36,19 @@ The terraform configuration creates:
 * One (1) Target Group, with target type being "ip" and health check path of "/wp-admin/install.php".
 * Two (1) Listeners for the Load Balancer, one for HTTP and the other for HTTPS.
 * One (1) DNS Record on Route 53 to map registered domain name to Load Balancer dns. The "allow overwrite" is set to true, hence it will overwrite any record with same name in Route 53.
-* One (1) EFS File System
-* One (1) EFS Access Point for the EFS File System
-* Two (2) Mount Targets in each of the two Subnets, whiles making use of the EFS security group 
-* One (1) Volume for the container, using the EFS File System
+* One (1) EFS File System.
+* One (1) EFS Access Point for the EFS File System.
+* Two (2) Mount Targets in each of the two Subnets, whiles making use of the EFS security group. 
+* One (1) Volume for the container, using the EFS File System.
 
 
-_Note that the wordpress container needs a database. The details of the RDS database (database host, database name, database username, and database password) are passed on to the wordpress container as environmental variables in the ECS task definition configuration. The database username and password must have been stored as secrets in AWS SSM parameter store before referenced within the configuration_
+_Note that the wordpress container needs a database. The details of the RDS database (database host, database name, database username, and database password) are passed on to the wordpress container as environmental variables in the ECS task definition configuration. The database username and password must have been stored as secrets in AWS SSM parameter store before referenced within the configuration_.
 
 
 * One (1) ECS Cluster, within which the ECS Task Definition will run
 * One (1) ECS Rask Definition that will be run by an ecs service.
 * One (1) ECS Service, which specifies the vpc, subnets, security group for ECS, Load Balancer and Target Group to run the container specified in the Task Definition. The Target Group is of type "ip", hence the ECS Service dynamically registers the private ip of the container on the Target Group anytime you run the terraform configuration. 
  
-
-RDS doesn't assign a public IP address to the cluster. Only Amazon EC2 instances and other resources inside the VPC can connect to your cluster. 
-
-
-
-
 
 ## How to run the configuration files
 

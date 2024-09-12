@@ -11,7 +11,7 @@ variable "vpc_name" {
 }
 
 variable "subnetnames" {
-  default = ["wp_private_sn1", "wp_public_sn1", "wp_public_sn2"]
+  default = ["wp_private_sn1", "wp_public_sn1", "wp_public_sn2", "wp_private_sn2"]
   type    = list(any)
 }
 
@@ -25,6 +25,10 @@ variable "subnet2_cidr" {
 
 variable "subnet3_cidr" {
   default = "10.0.3.0/24"
+}
+
+variable "subnet4_cidr" {
+  default = "10.0.4.0/24"
 }
 
 variable "az" {

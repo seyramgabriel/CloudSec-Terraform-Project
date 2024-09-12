@@ -18,12 +18,40 @@ resource "aws_subnet" "public_sn1" {
 
 resource "aws_subnet" "public_sn2" {
   vpc_id            = aws_vpc.cloudsec.id
-  cidr_block        = var.subnet2_cidr
+  cidr_block        = var.subnet3_cidr
   availability_zone = var.az[1]
   tags = {
     Name = var.subnetnames[2]
   }
 }
+
+resource "aws_subnet" "private_sn1" {
+  vpc_id            = aws_vpc.cloudsec.id
+  cidr_block        = var.subnet4_cidr
+  availability_zone = var.az[0]
+  tags = {
+    Name = var.subnetnames[0]
+  }
+}
+
+
+resource "aws_subnet" "private_sn2" {
+  vpc_id            = aws_vpc.cloudsec.id
+  cidr_block        = var.subnet2_cidr
+  availability_zone = var.az[1]
+  tags = {
+    Name = var.subnetnames[3]
+  }
+}
+
+
+resource "aws_route_table" "private-route-table" {
+  vpc_id = aws_vpc.cloudsec.id
+  tags = {
+    Name = "wp-private-route-table"
+  }
+}
+
 
 resource "aws_route_table" "public-route-table" {
   vpc_id = aws_vpc.cloudsec.id
@@ -40,6 +68,16 @@ resource "aws_route_table_association" "public_sn1_association" {
 resource "aws_route_table_association" "public_sn2_association" {
   subnet_id      = aws_subnet.public_sn2.id
   route_table_id = aws_route_table.public-route-table.id
+}
+
+resource "aws_route_table_association" "private_sn1_association" {
+  subnet_id      = aws_subnet.private_sn1.id
+  route_table_id = aws_route_table.private-route-table.id
+}
+
+resource "aws_route_table_association" "private_sn2_association" {
+  subnet_id      = aws_subnet.private_sn2.id
+  route_table_id = aws_route_table.private-route-table.id
 }
 
 resource "aws_internet_gateway" "internet-gw" {
@@ -174,7 +212,7 @@ resource "aws_security_group" "elb_security_group" {
 
 resource "aws_db_subnet_group" "cloudsec_subnet_group" {
   name       = "cloudsec_subnet_group"
-  subnet_ids = [aws_subnet.public_sn1.id, aws_subnet.public_sn2.id]
+  subnet_ids = [aws_subnet.private_sn1.id, aws_subnet.private_sn2.id]
                  
   tags = {
     Name = "My DB subnet group"
@@ -219,6 +257,8 @@ resource "aws_efs_mount_target" "cloudsec_efs_mt2" {
   subnet_id      = aws_subnet.public_sn2.id
   security_groups = [ aws_security_group.efs_security_group.id ]
   }
+
+
 
 resource "aws_efs_access_point" "cloudsec_access_pt" {
   file_system_id = aws_efs_file_system.cloudsec_efs.id
