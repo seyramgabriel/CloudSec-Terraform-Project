@@ -8,7 +8,6 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 
 * An AWS Account
 * AWS Access and Secret keys                   #___In the absence of a github actions role for openid connect___
-* SSM parameter for database username and password
 * S3 bucket for terraform backend state files. The bucket name must be unique, so you cannot use what is in this repository
 * Domain name 
 * ACMS certificate for the Domain name 
@@ -49,6 +48,18 @@ _Note that the wordpress container needs a database. The details of the RDS data
 * One (1) ECS Rask Definition that will be run by an ecs service.
 * One (1) ECS Service, which specifies the vpc, subnets, security group for ECS, Load Balancer and Target Group to run the container specified in the Task Definition. The Target Group is of type "ip", hence the ECS Service dynamically registers the private ip of the container on the Target Group anytime you run the terraform configuration. 
  
+
+## Security
+* RDS database is provisioned in a subnet group made up of private subnets. In addition, the publicly_accessible attribute is set to false to ensure that only resources within the VPC can access it. The rds endpoint has been defined in the output.tf for output after apply. 
+
+* A random password is generated for the RDS database, which is stored in SSM parameter store instead of being hard coded in the configuration files.
+
+You can verify the public accessibility by running and entering the password stored in parameter store.
+
+```
+mysql -h <rds_endpoint> -u <database_username> -p 
+```
+
 
 ## How to run the configuration files
 

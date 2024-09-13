@@ -61,6 +61,11 @@ variable "rds_db_name" {
   default = "cloudsec_db"
 }
 
+variable "database_username" {
+  type    = string
+  default = "admin"
+}
+
 variable "instance_class" {
   default = "db.t3.micro"
 }

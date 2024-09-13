@@ -210,6 +210,24 @@ resource "aws_security_group" "elb_security_group" {
   }
 }
 
+resource "random_password" "password" {
+  length           = 12
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "aws_ssm_parameter" "database_password" {
+  name = "${local.ssm_path_database}"
+  type = "SecureString"
+  value = random_password.password.result
+}
+
+resource "aws_ssm_parameter" "database_username" {
+  name = "${local.ssm_path_database}/username"
+  type = "String"
+  value = var.database_username
+}
+
 resource "aws_db_subnet_group" "cloudsec_subnet_group" {
   name       = "cloudsec_subnet_group"
   subnet_ids = [aws_subnet.private_sn1.id, aws_subnet.private_sn2.id]
@@ -226,8 +244,8 @@ resource "aws_db_instance" "cloudsec_rds" {
   engine                              = "mysql"
   engine_version                      = "8.0.35"
   instance_class                      = var.instance_class
-  username                            = data.aws_ssm_parameter.database_username.value
-  password                            = data.aws_ssm_parameter.database_password.value
+  username                            = aws_ssm_parameter.database_username.value 
+  password                            = aws_ssm_parameter.database_password.value
   port                                = "3306"
   storage_type                        = "gp3"
   db_subnet_group_name                = "cloudsec_subnet_group"
@@ -385,11 +403,11 @@ resource "aws_ecs_task_definition" "cloudsec_task_definition" {
         },
         {
           name  = "WORDPRESS_DB_USER",
-          value = data.aws_ssm_parameter.database_username.value
+          value = aws_ssm_parameter.database_username.value
         },
         {
           name  = "WORDPRESS_DB_PASSWORD",
-          value = data.aws_ssm_parameter.database_password.value
+          value = aws_ssm_parameter.database_password.value
         },
         {
           name  = "WORDPRESS_DB_NAME",
