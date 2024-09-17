@@ -113,8 +113,9 @@ To use open id connect, you can run the terraform configuration in the openid di
 cd openid
 ```
 
-Modify the provider.tf file, ensure you are using your created bucket and key
-Modify the variable.tf file to reflect the region of your choice. The region should be same as is in your oidc file
+Modify the provider.tf file, ensure you are using your own created bucket and key.
+
+Modify the variable.tf file to reflect the region of your choice. The region should be same as is in your oidc file.
 
 
 * Run 
@@ -128,7 +129,7 @@ terraform plan
 terraform apply
 ````
 
-This will create a role (whose name, and arn are quoted in the oidc.yaml file) with a policy that allows for authenticatio into your AWS Account. 
+This will create a role (whose name, and arn are quoted in the oidc.yaml file) with a policy that allows for authentication into your AWS Account. 
 
 
 
