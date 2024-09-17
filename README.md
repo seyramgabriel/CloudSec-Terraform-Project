@@ -41,7 +41,11 @@ The terraform configuration creates:
 * One (1) Volume for the container, using the EFS File System.
 
 
+
+
 _Note that the wordpress container needs a database. The details of the RDS database (database host, database name, database username, and database password) are passed on to the wordpress container as environmental variables in the ECS task definition configuration. The database username and password must have been stored as secrets in AWS SSM parameter store before referenced within the configuration_.
+
+
 
 
 * One (1) ECS Cluster, within which the ECS Task Definition will run
@@ -97,15 +101,34 @@ terraform destroy
 
 ## CICD
 
-The repo deploys the terraform configuration using the .github/workflows/action.yml file.
+The repo deploys the terraform configuration using .github/workflows/action.yml file and .github/workflows/oidc.yaml as alternative for better security.
 
-It is set to be triggered manually, by choosing either "apply" or "destroy" as inputs.
+The actions are set to be triggered manually (workflow_dispatch) by choosing either "apply" or "destroy" as inputs.
 
-It also uses AWS access key and secret key defined in the repository secret to authenticate to the AWS account.
+The github/workflows/action.yml file uses AWS access key and secret key defined in the repository secret to authenticate to the AWS account, whiles .github/workflows/oidc.yaml used open id connect.
 
-The load balancer dns is to be output once an apply is complete. 
+To use open id connect, you can run the terraform configuration in the openid directory as follows
+
+```
+cd openid
+```
+
+Modify the provider.tf file, ensure you are using your created bucket and key
+Modify the variable.tf file to reflect the region of your choice. The region should be same as is in your oidc file
 
 
+* Run 
+```
+terraform validate
+```
+```
+terraform plan
+```
+````
+terraform apply
+````
+
+This will create a role (whose name, and arn are quoted in the oidc.yaml file) with a policy that allows for authenticatio into your AWS Account. 
 
 
 
