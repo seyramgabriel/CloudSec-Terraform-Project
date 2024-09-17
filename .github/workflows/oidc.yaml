@@ -40,13 +40,21 @@ jobs:
         with:
           terraform_version: "1.6.6"
 
-      - name: Terraform init
-        id: init
-        run: terraform init
+      - name: Terraform Init
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: 0.14.3
+          tf_actions_subcommand: 'init'
+          tf_actions_working_dir: './source'
+          tf_actions_comment: true
 
       - name: Terraform plan
-        id: plan
-        run: terraform plan
+        uses: hashicorp/terraform-github-actions@master
+        with:
+           tf_actions_version: 0.14.3
+           tf_actions_subcommand: 'plan'
+           tf_actions_working_dir: './source'
+           tf_actions_comment: true
 
       - name: Terraform apply
         if: ${{ github.event.inputs.terraform_action == 'apply' }}
