@@ -101,7 +101,7 @@ terraform destroy
 
 ## CICD
 
-The repository deploys the terraform configuration using [action.yml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/action.yml) file, and [oicd.yaml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/oidc.yml) as alternative, for better security.
+The repository deploys the terraform configuration using [action.yml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/action.yml) file, and [oidc.yaml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/oidc.yml) as alternative, for better security.
 
 The actions are set to be triggered manually (workflow_dispatch) by choosing either "apply" or "destroy" as inputs.
 
