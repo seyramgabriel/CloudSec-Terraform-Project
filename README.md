@@ -101,21 +101,23 @@ terraform destroy
 
 ## CICD
 
-The repo deploys the terraform configuration using .github/workflows/action.yml file and .github/workflows/oidc.yaml as alternative for better security.
+The repository deploys the terraform configuration using .github/workflows/action.yml file, and .github/workflows/oidc.yaml as alternative, for better security.
 
 The actions are set to be triggered manually (workflow_dispatch) by choosing either "apply" or "destroy" as inputs.
 
-The github/workflows/action.yml file uses AWS access key and secret key defined in the repository secret to authenticate to the AWS account, whiles .github/workflows/oidc.yaml used open id connect.
+The github/workflows/action.yml file uses AWS access key and secret key defined in the repository secret to authenticate to the AWS account, whiles .github/workflows/oidc.yaml uses open id connect.
 
-To use open id connect, you can run the terraform configuration in the openid directory as follows
+To use open id connect, you can run the terraform configuration in the openid directory as follows:
 
 ```
 cd openid
 ```
 
-Modify the provider.tf file, ensure you are using your own created bucket and key.
+Modify the provider.tf file, ensure you are using your own created bucket and key for backend storage.
 
 Modify the variable.tf file to reflect the region of your choice. The region should be same as is in your oidc file.
+
+Modify the 'repo' from "seyramgabriel/*" to reflect your GitHub user account.
 
 
 * Run 
@@ -129,7 +131,7 @@ terraform plan
 terraform apply
 ````
 
-This will create a role (whose name, and arn are quoted in the oidc.yaml file) with a policy that allows for authentication into your AWS Account. 
+This will create a role (whose name and arn are quoted in the oidc.yaml file) with a policy that allows for authentication from your GitHub repository into your AWS Account. You would just have to change the AWS account ID in "arn:aws:iam::431877974142:role/GithubActions" in the oidc.yaml file, then you can now use oidc.yaml file to deploy the terraform configuration into your AWS Account.
 
 
 
