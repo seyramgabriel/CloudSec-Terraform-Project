@@ -18,8 +18,8 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 The terraform configuration creates: 
 
 * one (1) virtual private cloud.
-* Four(4) subnets.
-* Two (2) route tables, one is associated with the two subnets to be used as public subnets, and the other is associated with private subnets (used as subnet group) within which the RDS database is launched.
+* Four(4) subnets in two availability zones.
+* Two (2) route tables, one is associated with the two subnets to be used as public subnets, and the other is associated with two private subnets (used as subnet group) within which the RDS database is launched.
 * One (1) internet gateway which serves as the route for the public route table.
 * Four (4) security groups, one for RDS, one for ECS, one for EFS, and one for the Load Balancer:
      
@@ -37,7 +37,7 @@ The terraform configuration creates:
 * One (1) DNS Record on Route 53 to map registered domain name to Load Balancer dns. The "allow overwrite" is set to true, hence it will overwrite any record with same name in Route 53.
 * One (1) EFS File System.
 * One (1) EFS Access Point for the EFS File System.
-* Two (2) Mount Targets in each of the two Subnets, whiles making use of the EFS security group. 
+* Two (2) Mount Targets in each of two Subnets, hence two availability zones, whiles making use of the EFS security group. 
 * One (1) Volume for the container, using the EFS File System.
 
 
