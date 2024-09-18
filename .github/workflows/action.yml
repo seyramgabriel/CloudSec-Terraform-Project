@@ -16,8 +16,9 @@ on:
   #   branches: [ "main" ]
 
 jobs:
-  terraform:
+  deploy:
     name: 'Deploy Infra'
+    environment: dev
     env:
       # AWS secrets
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
