@@ -16,14 +16,14 @@ resource "aws_subnet" "public_sn1" {
   }
 }
 
-resource "aws_subnet" "public_sn2" {
+/*resource "aws_subnet" "public_sn2" {
   vpc_id            = aws_vpc.cloudsec.id
   cidr_block        = var.subnet3_cidr
   availability_zone = var.az[1]
   tags = {
     Name = var.subnetnames[2]
   }
-}
+}*/
 
 resource "aws_subnet" "private_sn1" {
   vpc_id            = aws_vpc.cloudsec.id
@@ -65,10 +65,10 @@ resource "aws_route_table_association" "public_sn1_association" {
   route_table_id = aws_route_table.public-route-table.id
 }
 
-resource "aws_route_table_association" "public_sn2_association" {
+/*resource "aws_route_table_association" "public_sn2_association" {
   subnet_id      = aws_subnet.public_sn2.id
   route_table_id = aws_route_table.public-route-table.id
-}
+}*/
 
 resource "aws_route_table_association" "private_sn1_association" {
   subnet_id      = aws_subnet.private_sn1.id
@@ -94,6 +94,30 @@ resource "aws_route" "public-route-table-route-for-igw" {
   gateway_id             = aws_internet_gateway.internet-gw.id
 }
 
+
+resource "aws_eip" "eip-for-nat-gw" {
+  associate_with_private_ip = var.nat-gw-ip
+  tags = {
+    Name = "Cloudsec-eip"
+  }
+}
+
+resource "aws_nat_gateway" "cloudsec-nat-gw" {
+  allocation_id = aws_eip.eip-for-nat-gw.id
+  subnet_id     = aws_subnet.public_sn1.id
+
+  tags = {
+    Name = "Cloudsec-nat-gw"
+  }
+
+}
+
+resource "aws_route" "private-route-table-route-for-nat-gw" {
+  route_table_id         = aws_route_table.private-route-table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_nat_gateway.cloudsec-nat-gw.id
+}
+
 resource "aws_security_group" "rds_security_group" {
   name        = "rds_security_group"
   description = "security group for rds"
@@ -113,13 +137,13 @@ resource "aws_security_group" "ecs_security_group" {
   description = "security group for ecs"
   vpc_id      = aws_vpc.cloudsec.id
 
-  ingress {
+  /*ingress {
     from_port       = var.web_ports[2]
     protocol        = "TCP"
     to_port         = var.web_ports[2]
     cidr_blocks     = ["0.0.0.0/0"]
     description     = "Allow traffic from the internet"
-  }
+  }*/
 
   ingress {
     from_port       = var.web_ports[2]
@@ -138,13 +162,13 @@ resource "aws_security_group" "ecs_security_group" {
     description     = "Allow traffic from elb"
   }
 
-  ingress {
+  /*ingress {
     from_port       = var.web_ports[3]
     protocol        = "TCP"
     to_port         = var.web_ports[3]
     cidr_blocks     = ["0.0.0.0/0"]
-    description     = "Allow traffic from elb"
-  }
+    description     = "Allow traffic from the internet"
+  }*/
  
   egress {
     from_port   = var.web_ports[0]
@@ -233,7 +257,7 @@ resource "aws_db_subnet_group" "cloudsec_subnet_group" {
   subnet_ids = [aws_subnet.private_sn1.id, aws_subnet.private_sn2.id]
                  
   tags = {
-    Name = "My DB subnet group"
+    Name = "Cloudsec subnet group"
   }
 }
 
@@ -266,13 +290,13 @@ resource "aws_efs_file_system" "cloudsec_efs" {
 
 resource "aws_efs_mount_target" "cloudsec_efs_mt1" {
   file_system_id = aws_efs_file_system.cloudsec_efs.id
-  subnet_id      = aws_subnet.public_sn1.id
+  subnet_id      = aws_subnet.private_sn1.id
   security_groups = [ aws_security_group.efs_security_group.id ]
 }
 
 resource "aws_efs_mount_target" "cloudsec_efs_mt2" {
   file_system_id = aws_efs_file_system.cloudsec_efs.id
-  subnet_id      = aws_subnet.public_sn2.id
+  subnet_id      = aws_subnet.private_sn2.id
   security_groups = [ aws_security_group.efs_security_group.id ]
   }
 
@@ -308,8 +332,6 @@ resource "aws_cloudwatch_log_group" "cloudsec_ecs_logs" {
 
 }
 
-
-
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs_task_execution_role1"
  
@@ -329,8 +351,6 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 }
 EOF
 }
-
-
 
 resource "aws_iam_role" "ecs_task_role" {
   name = "ecs_task_role1"
@@ -357,13 +377,11 @@ resource "aws_iam_role_policy_attachment" "ecs-task-role-policy-attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientFullAccess"
 }
 
-
 resource "aws_iam_role_policy_attachment" "ecs-task-execution-role-policy-attachment" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 
 }
-
 
 resource "aws_ecs_task_definition" "cloudsec_task_definition" {
   family                   = "cloudsec_family"
@@ -453,7 +471,7 @@ resource "aws_lb" "cloudsec_elb" {
   internal           = false
   load_balancer_type = var.elb_type
   security_groups    = [aws_security_group.elb_security_group.id]
-  subnets            = [aws_subnet.public_sn1.id, aws_subnet.public_sn2.id]
+  subnets            = [aws_subnet.public_sn1.id, aws_subnet.private_sn2.id]
 
   enable_deletion_protection = false
 
@@ -473,7 +491,6 @@ resource "aws_lb_listener" "cloudsec_listener" {
   }
 }
 
-
 resource "aws_lb_listener" "cloudsec_listener_SSL" {
   load_balancer_arn = aws_lb.cloudsec_elb.arn
   port              = "443"
@@ -486,7 +503,6 @@ resource "aws_lb_listener" "cloudsec_listener_SSL" {
   }
 }
 
-
 resource "aws_ecs_service" "cloudsec_service" {
   name            = var.ecs_service_name
   cluster         = aws_ecs_cluster.cloudsec_cluster.id
@@ -496,7 +512,7 @@ resource "aws_ecs_service" "cloudsec_service" {
   health_check_grace_period_seconds = 300
 
   network_configuration {
-    subnets         = [aws_subnet.public_sn1.id, aws_subnet.public_sn2.id]
+    subnets         = [aws_subnet.private_sn1.id, aws_subnet.private_sn2.id]
     security_groups = [aws_security_group.ecs_security_group.id]
     assign_public_ip = true
   }
@@ -507,7 +523,6 @@ resource "aws_ecs_service" "cloudsec_service" {
     container_port   = 80
   }
 }
-
 
 resource "aws_route53_record" "cloudsec_dns" {
   zone_id = var.hosted_zone_id

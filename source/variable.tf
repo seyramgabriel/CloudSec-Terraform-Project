@@ -122,3 +122,7 @@ variable "hosted_zone_id" {
   default = "Z0024725E6TXJWBO3XTZ"
   type    = string
 }
+
+variable "nat-gw-ip" {
+  default = "10.0.0.5"
+}
