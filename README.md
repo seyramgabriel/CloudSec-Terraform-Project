@@ -139,7 +139,10 @@ terraform apply
 This will create a role (whose name and arn are quoted in the oidc.yaml file) with a policy that allows for authentication from your GitHub repository into your AWS Account. You would just have to change the AWS account ID in "arn:aws:iam::431877974142:role/GithubActions" in the oidc.yaml file, then you can now use oidc.yaml file to deploy the terraform configuration into your AWS Account.
 
 
+## Project Architecture 
 
+
+![Cloudsec-terraform-project](https://github.com/user-attachments/assets/dea879d4-e2e3-4b8c-aeb2-c3fcfffb58e3)
 
 
 
