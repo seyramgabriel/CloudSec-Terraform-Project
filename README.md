@@ -26,7 +26,7 @@ The terraform configuration creates:
      
     1. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
 
-    2. The ECS security group has ingress for only the Load Balancer security group on both HTTPS and HTTPS, it has egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
+    2. The ECS security group has ingress for only the Load Balancer security group on both HTTP and HTTPS, it has egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
 
     3. The EFS security group has ingress on port 2049 for the ECS security group.
 
