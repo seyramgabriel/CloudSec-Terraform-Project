@@ -142,7 +142,7 @@ This will create a role (whose name and arn are quoted in the oidc.yaml file) wi
 ## Project Architecture 
 
 
-![Cloudsec-terraform-project](https://github.com/user-attachments/assets/dea879d4-e2e3-4b8c-aeb2-c3fcfffb58e3)
+![Cloudsec-terraform-project ](https://github.com/user-attachments/assets/72358a03-1fe4-4981-bb34-c453296ed745)
 
 
 
