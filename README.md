@@ -18,21 +18,20 @@ This project launches a wordpress application on AWS ECS, connecting it to a dat
 The terraform configuration creates: 
 
 * one (1) virtual private cloud.
-* Three(3) subnets in two availability zones.
-* Two (2) route tables, one is associated with the subnet to be used as a public subnet, and the other is associated with two private subnets (used as subnet group) within which the RDS database is launched. 
+* Four(4) subnets in two availability zones.
+* Two (2) route tables, one is associated with two(2) public subnets, and the other is associated with two(2) private subnets (used as subnet group) within which the RDS database is launched. 
 * One (1) internet gateway which serves as the route for the public route table.
-* One (1) nat gateway (in the public subnet) which serves as the route for the private route table.
 * Four (4) security groups, one for RDS, one for ECS, one for EFS, and one for the Load Balancer:
      
-    1. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
+    a. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
 
-    2. The ECS security group has ingress for only the Load Balancer security group on both HTTP and HTTPS, it has egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
+    b. The ECS security group has ingress for the Load Balancer security group on both HTTP and HTTPS, it has egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
 
-    3. The EFS security group has ingress on port 2049 for the ECS security group.
+    c. The EFS security group has ingress on port 2049 for the ECS security group.
 
-    4. The Load Balancer security group has ingress for both port 80 and 443 (HTTP and HTTPS).
+    d. The Load Balancer security group has ingress for both port 80 and 443 (HTTP and HTTPS).
 
-* One (1) Load Balancer, in two subnets, one of which is public, the other is private.
+* One (1) Load Balancer, in two public subnets.
 * One (1) Target Group, with target type being "ip" and health check path of "/wp-admin/install.php".
 * Two (1) Listeners for the Load Balancer, one for HTTP and the other for HTTPS.
 * One (1) DNS Record on Route 53 to map registered domain name to Load Balancer dns. The "allow overwrite" is set to true, hence it will overwrite any record with same name in Route 53.
@@ -57,14 +56,14 @@ _Note that the wordpress container needs a database. The details of the RDS data
 ## Security
 * RDS database is provisioned in a subnet group made up of private subnets. In addition, the publicly_accessible attribute is set to false to ensure that only resources within the VPC can access it. The rds endpoint has been defined in the output.tf for output after apply. 
 
-* A random password is generated for the RDS database, which is stored in SSM parameter store instead of being hard coded in the configuration files.
+* A random password is generated for the RDS database, which is stored in AWS SSM parameter store instead of being hard coded in the configuration files.
 
 You can verify the public accessibility by running and entering the password stored in parameter store.
 
 ```
 mysql -h <rds_endpoint> -u <database_username> -p 
 ```
-* The ECS service launches the ecs task definition in private subnets, hence the application is not accessible through a public ip, but only through the load balancer, since the ecs security group has ingress for the load balancer security group. 
+* The ECS service launches the ecs task definition in public subnets, hence the web application tier is accessible through a public ip, and also through the load balancer, since the ecs security group has ingress for the load balancer security group. 
 
 * The Load Balancer has listeners for both HTTP and HTTPS, this allows access to the application through the A record (alias) created with the registered dns that has ACMS certificate, due to SSL termination.
 
@@ -99,7 +98,29 @@ terraform apply
 
 * After all resources are created, there will be an output of the load balancer dns, with which you can browse the wordpress application
 
-To destroy the resources, run
+![Screenshot (128)](https://github.com/user-attachments/assets/69c24d85-8870-4dd0-aa49-f690752471b0)
+
+* You can ran ```terraform state list``` to list all resources created:
+
+![Screenshot (126)](https://github.com/user-attachments/assets/c5f198a3-c75a-48f9-bf56-5c883aaac918)
+
+
+* The wordpress application would be accessible via load balancer dns, your dns name, and the public ip of the container.
+
+Via load balancer dns:
+
+![Screenshot (123)](https://github.com/user-attachments/assets/bd0fb194-ffbd-433f-9972-5a7d6a4321ba)
+
+Via dns name:
+
+![Screenshot (124)](https://github.com/user-attachments/assets/8b0f0557-0dee-463f-acf7-564c6b499ef4)
+
+Via public ip:
+
+![Screenshot (125)](https://github.com/user-attachments/assets/d006d860-4628-4161-b43b-10a945ad697a)
+
+
+* To destroy the resources, run
 ````
 terraform destroy
 ````
@@ -108,11 +129,10 @@ terraform destroy
 
 The repository deploys the terraform configuration using [action.yml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/action.yml) file, and [oidc.yaml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/oidc.yaml) as alternative, for better security.
 
-The actions are set to be triggered manually (workflow_dispatch) by choosing either "apply" or "destroy" as inputs.
 
 The github/workflows/action.yml file uses AWS access key and secret key defined in the repository secret to authenticate to the AWS account, whiles .github/workflows/oidc.yaml uses open id connect.
 
-To use open id connect, you can run the terraform configuration in the openid directory as follows:
+To use open id connect rather than AWS access key and secret key, you can run the terraform configuration in the openid directory as follows:
 
 ```
 cd openid
@@ -137,6 +157,26 @@ terraform apply
 ````
 
 This will create a role (whose name and arn are quoted in the oidc.yaml file) with a policy that allows for authentication from your GitHub repository into your AWS Account. You would just have to change the AWS account ID in "arn:aws:iam::431877974142:role/GithubActions" in the oidc.yaml file, then you can now use oidc.yaml file to deploy the terraform configuration into your AWS Account.
+
+### How to trigger the workflow
+The actions are set to be triggered manually (workflow_dispatch) by choosing either "apply" or "destroy" as inputs as displayed below:
+
+![Screenshot (120)](https://github.com/user-attachments/assets/d773f373-22be-44b8-ab05-6e493d132054)
+
+
+Apply:
+
+Choose "apply" and click "Run workflow"
+
+![Screenshot (118)](https://github.com/user-attachments/assets/ed45f436-9e93-48db-ae48-19826a398de8)
+
+
+Destroy:
+
+Choose "destroy" and click "Run workflow"
+
+![Screenshot (119)](https://github.com/user-attachments/assets/80c347d3-89f0-470d-a679-69886365dd1b)
+
 
 
 ## Project Architecture 

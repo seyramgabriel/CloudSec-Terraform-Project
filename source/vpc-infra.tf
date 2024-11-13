@@ -16,14 +16,14 @@ resource "aws_subnet" "public_sn1" {
   }
 }
 
-/*resource "aws_subnet" "public_sn2" {
+resource "aws_subnet" "public_sn2" {
   vpc_id            = aws_vpc.cloudsec.id
   cidr_block        = var.subnet3_cidr
   availability_zone = var.az[1]
   tags = {
     Name = var.subnetnames[2]
   }
-}*/
+}
 
 resource "aws_subnet" "private_sn1" {
   vpc_id            = aws_vpc.cloudsec.id
@@ -65,10 +65,10 @@ resource "aws_route_table_association" "public_sn1_association" {
   route_table_id = aws_route_table.public-route-table.id
 }
 
-/*resource "aws_route_table_association" "public_sn2_association" {
+resource "aws_route_table_association" "public_sn2_association" {
   subnet_id      = aws_subnet.public_sn2.id
   route_table_id = aws_route_table.public-route-table.id
-}*/
+}
 
 resource "aws_route_table_association" "private_sn1_association" {
   subnet_id      = aws_subnet.private_sn1.id
@@ -95,7 +95,7 @@ resource "aws_route" "public-route-table-route-for-igw" {
 }
 
 
-resource "aws_eip" "eip-for-nat-gw" {
+/*resource "aws_eip" "eip-for-nat-gw" {
   associate_with_private_ip = var.nat-gw-ip
   tags = {
     Name = "Cloudsec-eip"
@@ -116,7 +116,7 @@ resource "aws_route" "private-route-table-route-for-nat-gw" {
   route_table_id         = aws_route_table.private-route-table.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_nat_gateway.cloudsec-nat-gw.id
-}
+}*/
 
 resource "aws_security_group" "rds_security_group" {
   name        = "rds_security_group"
@@ -137,13 +137,13 @@ resource "aws_security_group" "ecs_security_group" {
   description = "security group for ecs"
   vpc_id      = aws_vpc.cloudsec.id
 
-  /*ingress {
+  ingress {
     from_port       = var.web_ports[2]
     protocol        = "TCP"
     to_port         = var.web_ports[2]
     cidr_blocks     = ["0.0.0.0/0"]
     description     = "Allow traffic from the internet"
-  }*/
+  }
 
   ingress {
     from_port       = var.web_ports[2]
@@ -162,13 +162,13 @@ resource "aws_security_group" "ecs_security_group" {
     description     = "Allow traffic from elb"
   }
 
-  /*ingress {
+  ingress {
     from_port       = var.web_ports[3]
     protocol        = "TCP"
     to_port         = var.web_ports[3]
     cidr_blocks     = ["0.0.0.0/0"]
     description     = "Allow traffic from the internet"
-  }*/
+  }
  
   egress {
     from_port   = var.web_ports[0]
@@ -471,7 +471,7 @@ resource "aws_lb" "cloudsec_elb" {
   internal           = false
   load_balancer_type = var.elb_type
   security_groups    = [aws_security_group.elb_security_group.id]
-  subnets            = [aws_subnet.public_sn1.id, aws_subnet.private_sn2.id]
+  subnets            = [aws_subnet.public_sn1.id, aws_subnet.public_sn2.id]
 
   enable_deletion_protection = false
 
@@ -512,7 +512,7 @@ resource "aws_ecs_service" "cloudsec_service" {
   health_check_grace_period_seconds = 300
 
   network_configuration {
-    subnets         = [aws_subnet.private_sn1.id, aws_subnet.private_sn2.id]
+    subnets         = [aws_subnet.public_sn1.id, aws_subnet.public_sn2.id]
     security_groups = [aws_security_group.ecs_security_group.id]
     assign_public_ip = true
   }
