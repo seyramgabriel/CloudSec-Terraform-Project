@@ -159,6 +159,7 @@ terraform apply
 This will create a role (whose name and arn are quoted in the oidc.yaml file) with a policy that allows for authentication from your GitHub repository into your AWS Account. You would just have to change the AWS account ID in "arn:aws:iam::431877974142:role/GithubActions" in the oidc.yaml file, then you can now use oidc.yaml file to deploy the terraform configuration into your AWS Account.
 
 ### How to trigger the workflow
+
 The actions are set to be triggered manually (workflow_dispatch) by choosing either "apply" or "destroy" as inputs as displayed below:
 
 ![Screenshot (120)](https://github.com/user-attachments/assets/d773f373-22be-44b8-ab05-6e493d132054)
@@ -182,7 +183,9 @@ Choose "destroy" and click "Run workflow"
 ## Project Architecture 
 
 
-![Cloudsec-terraform-project](https://github.com/user-attachments/assets/97adbf04-8f50-4d6a-b8ab-64848a7c4c23)
+![Cloudsec-terraform-project](https://github.com/user-attachments/assets/d8f213f0-fd7a-4ef0-ab7f-8f1360a48db9)
+
+
 
 
 
