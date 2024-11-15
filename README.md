@@ -1,9 +1,37 @@
 # CloudSec-Terraform-Project
+# Project Description
 
 Welcome to the CloudSec-Terraform-Project
 
-This project launches a wordpress application on AWS ECS, connecting it to a database on AWS RDS and uses AWS EFS as its volume.
+This project launches a wordpress application on AWS ECS with Fargate, connecting it to a database on AWS RDS and uses AWS EFS as its volume.
 
+The project involves setting up a complete infrastructure on AWS, managed through Terraform, ensuring that no hardcoded credentials are used for sensitive data.
+
+
+# Key Requirements:
+
+* VPC Setup: Create a new VPC with public subnets for the web tier and private subnets for the database.
+
+* Load Balancer: Implement an Application Load Balancer (ALB) to distribute traffic and handle SSL termination.
+
+*  IAM & Security: Configure IAM roles and security groups to enforce least-privilege access and secure traffic control.
+
+*  ECS & Fargate: Deploy WordPress on ECS using Fargate, with Amazon EFS for shared storage.
+
+*  RDS Database: Set up Amazon RDS (MySQL/MariaDB) in a private subnet for the WordPress database.
+
+*  Domain & SSL: Purchase a domain (e.g., .pro, .cloud) and manage it via Route 53. Secure the site with SSL/TLS using AWS Certificate Manager (ACM).
+
+# Deliverables:
+
+* Terraform code, hosted in a GitHub repository.
+
+* Screenshots of the deployed resources.
+
+* Documentation (as a README) explaining the system architecture and final setup.
+
+
+# Project Implementation 
 ## Prerequisites:
 
 * An AWS Account
@@ -85,7 +113,7 @@ cd source/
 
 * Modify the image name from "wordpress:php8.3-apache" to any wordpress image of your choice in the ecs task definition configuraion in vpc-infra.tf file. Note that the wordpress image "wordpress:php8.3-apache" comes with wordpress, php, and apache.
 
-* Run 
+* Run the following commands in succession
 ```
 terraform validate
 ```
@@ -100,7 +128,7 @@ terraform apply
 
 ![Screenshot (128)](https://github.com/user-attachments/assets/69c24d85-8870-4dd0-aa49-f690752471b0)
 
-* You can ran ```terraform state list``` to list all resources created:
+* You can run ```terraform state list``` to list all resources created:
 
 ![Screenshot (126)](https://github.com/user-attachments/assets/c5f198a3-c75a-48f9-bf56-5c883aaac918)
 
@@ -127,7 +155,7 @@ terraform destroy
 
 ## CICD
 
-The repository deploys the terraform configuration using [action.yml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/action.yml) file, and [oidc.yaml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/oidc.yaml) as alternative, for better security.
+The repository deploys a CI/CD for the terraform configuration using [action.yml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/action.yml) file, and [oidc.yaml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/oidc.yaml) as alternative, for better security.
 
 
 The github/workflows/action.yml file uses AWS access key and secret key defined in the repository secret to authenticate to the AWS account, whiles .github/workflows/oidc.yaml uses open id connect.
