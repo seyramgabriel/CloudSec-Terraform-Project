@@ -35,11 +35,21 @@ The project involves setting up a complete infrastructure on AWS, managed throug
 ## Prerequisites:
 
 * An AWS Account
-* AWS Access and Secret keys                   #___In the absence of a github actions role for openid connect___
 * S3 bucket for terraform backend state files. The bucket name must be unique, so you cannot use what is in this repository
 * Domain name 
 * ACMS certificate for the Domain name 
 
+
+## Configuration files
+
+The terraform configuraion files are in the "source' directory in this repository. 
+It contains the following files:
+* vpc-infra.tf - which is the main configuration file
+* provider.tf - which declares the aws region, the terraform version, and the s3 bucket to be used as terraform backend
+* variable.tf - which is used to define variables for the terraform configuration
+* output.tf - which is used to define the output of rds database endpoint and load balancer dns
+* store.tf -  which defines configuration for database password and database username in aws parameter store
+* locals.tf - which provides a variable for the path in aws parameter store for the database password and database username
 
 ## Network Configuration
 
@@ -51,13 +61,13 @@ The terraform configuration creates:
 * One (1) internet gateway which serves as the route for the public route table.
 * Four (4) security groups, one for RDS, one for ECS, one for EFS, and one for the Load Balancer:
      
-    a. RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
+    **a.** RDS is made to be only privately accessible, but its security group allows traffic from the ECS security group on port 3306. Once you make RDS not publicly accessible, RDS doesn't assign a public IP address to the database. Only Amazon EC2 instances and other resources inside the VPC can connect to your database. 
 
-    b. The ECS security group has ingress for the Load Balancer security group on both HTTP and HTTPS, it has egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
+    **b.** The ECS security group has ingress for the Load Balancer security group on both HTTP and HTTPS, it has egress on port 3306 (so that it can communicate with RDS), egress on port 2049 (in order to communicate with EFS on NFS) and egress on port 443 (so that it can pull the container image "wordpress:php8.3-apache" from docker hub). 
 
-    c. The EFS security group has ingress on port 2049 for the ECS security group.
+    **c.** The EFS security group has ingress on port 2049 for the ECS security group.
 
-    d. The Load Balancer security group has ingress for both port 80 and 443 (HTTP and HTTPS).
+    **d.** The Load Balancer security group has ingress for both port 80 and 443 (HTTP and HTTPS).
 
 * One (1) Load Balancer, in two public subnets.
 * One (1) Target Group, with target type being "ip" and health check path of "/wp-admin/install.php".
@@ -69,11 +79,7 @@ The terraform configuration creates:
 * One (1) Volume for the container, using the EFS File System.
 
 
-
-
 _Note that the wordpress container needs a database. The details of the RDS database (database host, database name, database username, and database password) are passed on to the wordpress container as environmental variables in the ECS task definition configuration_.
-
-
 
 
 * One (1) ECS Cluster, within which the ECS Task Definition will run
@@ -86,16 +92,17 @@ _Note that the wordpress container needs a database. The details of the RDS data
 
 * A random password is generated for the RDS database, which is stored in AWS SSM parameter store instead of being hard coded in the configuration files.
 
-You can verify the public accessibility by running and entering the password stored in parameter store.
+You can verify the public accessibility of the RDS Database by running and entering the password stored in parameter store.
 
 ```
 mysql -h <rds_endpoint> -u <database_username> -p 
 ```
 * The ECS service launches the ecs task definition in public subnets, hence the web application tier is accessible through a public ip, and also through the load balancer, since the ecs security group has ingress for the load balancer security group. 
 
-* The Load Balancer has listeners for both HTTP and HTTPS, this allows access to the application through the A record (alias) created with the registered dns that has ACMS certificate, due to SSL termination.
+* The Load Balancer has listeners for both HTTP and HTTPS, this allows access to the application through an A record (alias) created with the registered dns that has ACMS certificate, due to SSL termination.
 
 * The EFS is mounted in private subnets. 
+
 
 ## How to run the configuration files
 
@@ -148,12 +155,25 @@ Via public ip:
 ![Screenshot (125)](https://github.com/user-attachments/assets/d006d860-4628-4161-b43b-10a945ad697a)
 
 
+So you proceed to choose your preferred language, enter your credentials as a user on wordpress and click install, and log in to wordpress, as in the pictures below: 
+
+![Screenshot (149)](https://github.com/user-attachments/assets/2f92f5eb-ea54-4c62-88dc-b9b8bfc2a696)
+
+![Screenshot (151)](https://github.com/user-attachments/assets/19c91dee-a2e1-4ca5-b852-d89a896253ed)
+
+![Screenshot (152)](https://github.com/user-attachments/assets/fbf87dd3-ce2d-47e9-b485-654305e0c919)
+
 * To destroy the resources, run
 ````
 terraform destroy
 ````
 
 ## CICD
+
+Pre-requisite:
+* AWS Access and Secret keys                   #___In the absence of a github actions role for openid connect___
+* GitHub actions role for openid connect  (This is optional, but for enhanced security)
+
 
 The repository deploys a CI/CD for the terraform configuration using [action.yml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/action.yml) file, and [oidc.yaml](https://github.com/seyramgabriel/CloudSec-Terraform-Project/blob/main/.github/workflows/oidc.yaml) as alternative, for better security.
 
