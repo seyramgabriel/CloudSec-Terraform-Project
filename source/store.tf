@@ -1,9 +1,11 @@
-/*data "aws_ssm_parameter" "database_password" {
-  name = local.ssm_path_database
-  depends_on = aws_ssm_parameter.database_password
+resource "aws_ssm_parameter" "database_password" {
+  name = "${local.ssm_path_database}"
+  type = "SecureString"
+  value = random_password.password.result
 }
 
-data "aws_ssm_parameter" "database_username" {
+resource "aws_ssm_parameter" "database_username" {
   name = "${local.ssm_path_database}/username"
-  depends_on = aws_ssm_parameter.database_username
-}*/
+  type = "String"
+  value = var.database_username
+}
