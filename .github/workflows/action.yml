@@ -10,6 +10,14 @@ on:
         - apply
         - destroy
         required: true
+      production:
+         type: choice
+         description: select terraform action
+         options:
+         - apply
+         - destroy
+         required: true
+        
 
 
   # push:
